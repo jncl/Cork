@@ -1,3 +1,4 @@
+if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then return end
 
 local myname, ns = ...
 local ae = LibStub("AceEvent-3.0")
@@ -22,7 +23,7 @@ end
 
 
 function dataobj:Init()
-	if UnitLevel("player") == maxlevel then OpenCalendar() end
+	if UnitLevel("player") == maxlevel then C_Calendar.OpenCalendar() end
 end
 
 

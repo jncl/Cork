@@ -1,20 +1,33 @@
+if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then return end
 
 local myname, Cork = ...
 if Cork.MYCLASS ~= "WARLOCK" then return end
 
 local myname, Cork = ...
-local UnitAura = UnitAura
+local UnitAura = Cork.UnitAura or UnitAura
 local ldb, ae = LibStub:GetLibrary("LibDataBroker-1.1"), LibStub("AceEvent-3.0")
 
+local spell, spellID, subSpellName
+if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
+	spellID = 19028
+else
+	spellID = 108415
+end
+spell = Spell:CreateFromSpellID(spellID) -- SoulLink
+spell:ContinueOnSpellLoad(function()
+	subSpellName, f2, f3, f4 = spell:GetSpellSubtext()
+	print(format("[%s][%s][%s]", subSpellName or "nil", f2 or "nil", f3 or "nil"))
+end)
 
-local soul_link_enabled = select(5, GetTalentInfo(3,1,GetActiveSpecGroup()))
-if soul_link_enabled then
-	local spellname, _, icon = GetSpellInfo(108415)
+-- local soul_link_enabled = select(5, GetTalentInfo(3,1,GetActiveSpecGroup()))
+-- if soul_link_enabled then
+if subSpellName ~= "" then
+	local spellname, _, icon = GetSpellInfo(spellID)
 	local IconLine = Cork.IconLine(icon, spellname)
 
-	local dataobj = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Cork "..spellname, {type = "cork", tiplink = GetSpellLink(spellname)})
+	local dataobj = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Cork "..spellname, {type = "cork", tiplink = GetSpellLink(spellID)})
 
-	function dataobj:Init() Cork.defaultspc[spellname.."-enabled"] = GetSpellInfo(spellname) ~= nil end
+	function dataobj:Init() Cork.defaultspc[spellname.."-enabled"] = GetSpellInfo(spellID) ~= nil end
 
 	local function Test(unit)
 		if Cork.dbpc[spellname.."-enabled"] and UnitExists("pet") and not UnitIsDead("pet") and not UnitAura("pet", spellname) and UnitName("pet") ~= UNKNOWN and not IsMounted() then

@@ -30,7 +30,7 @@ end
 
 
 -- Damage poisons
-local dataobj = Cork:GenerateAdvancedSelfBuffer("Lethal Poison", {2823,8679,200802})
+local dataobj = Cork:GenerateAdvancedSelfBuffer("Lethal Poison", {2823,8679, 315584--[[,200802]]}) -- Deadly, Wound, Instant
 dataobj.oldtest = dataobj.Test
 dataobj.Test = Test
 dataobj.UNIT_INVENTORY_CHANGED = UNIT_INVENTORY_CHANGED
@@ -39,7 +39,7 @@ ae.RegisterEvent(dataobj, "UNIT_INVENTORY_CHANGED")
 
 
 -- Utility poisons
-local dataobj = Cork:GenerateAdvancedSelfBuffer("Non-Lethal Poison", {3408,108211})
+local dataobj = Cork:GenerateAdvancedSelfBuffer("Non-Lethal Poison", {3408, 5761, 108211}) -- Crippling, Numbing, Leeching
 dataobj.oldtest = dataobj.Test
 dataobj.Test = Test
 dataobj.UNIT_INVENTORY_CHANGED = UNIT_INVENTORY_CHANGED

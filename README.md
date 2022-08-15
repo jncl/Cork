@@ -23,6 +23,6 @@ are included as well:
 Simple!  Make a macro: `/click CorkFrame`.  You might wish to add a
 `/cast [combat] Some Spell` at the start as well.
 
-You can also use the keybinding in the default k2eybind UI.
+You can also use the keybinding in the default keybind UI.
 
 Be warned, Cork will only cast out of combat.  If you want to apply buffs in combat, you'll have to do it manually.

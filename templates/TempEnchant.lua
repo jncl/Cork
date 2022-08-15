@@ -5,7 +5,7 @@ local ldb = LibStub:GetLibrary("LibDataBroker-1.1")
 
 local MAINHAND, OFFHAND = GetInventorySlotInfo("MainHandSlot"), GetInventorySlotInfo("SecondaryHandSlot")
 local offhands = {INVTYPE_WEAPON = true, INVTYPE_WEAPONOFFHAND = true}
-local _, _, _, _, _, _, _, _, _, _, _, MISC = GetAuctionItemSubClasses(1)
+local _, _, _, _, _, _, _, _, _, _, _, MISC = C_AuctionHouse and C_AuctionHouse.GetAuctionItemSubClasses(1) or GetAuctionItemSubClasses(1)
 local IconLine = Cork.IconLine
 
 -- Creates a module for applying temp enchants (poisons, etc) to weapons

@@ -1,3 +1,4 @@
+if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then return end
 
 local myname, Cork = ...
 if Cork.MYCLASS ~= "WARLOCK" then return end
@@ -8,14 +9,17 @@ local IconLine = Cork.IconLine
 local ldb, ae = LibStub:GetLibrary("LibDataBroker-1.1"), LibStub("AceEvent-3.0")
 
 
-local soulburn = GetSpellInfo(74434)
-
+local soulburn = GetSpellInfo(74434) --19393
+--
 local knowssoulburn
-local spellidlist = {688, 697, 712, 691, 30146, 157757, 1122}
+local spellidlist = {688, 697, 712, 691, 1122, 30146, 157757} -- imp, voidwalker, succubus, felhunter, infernal
 local buffnames, icons, known = {}, {}, {}
 for _,id in pairs(spellidlist) do
 	local spellname, _, icon = GetSpellInfo(id)
-	buffnames[id], icons[spellname] =  spellname, icon
+	_G.print("Warlock Pets", spellname, icon)
+	if spellname then
+		buffnames[id], icons[spellname] = spellname, icon
+	end
 end
 
 Cork.defaultspc["Summon demon-spell"] = buffnames[spellidlist[1]]
@@ -28,13 +32,16 @@ end
 
 function dataobj:Init() RefreshKnownSpells() Cork.defaultspc["Summon demon-enabled"] = known[buffnames[spellidlist[1]]] ~= nil end
 function dataobj:Scan()
+	_G.print("WP Scan", Cork.dbpc["Summon demon-spell"])
 	if IsMounted() or not Cork.dbpc["Summon demon-enabled"] or UnitExists("pet") then dataobj.player = nil
 	else dataobj.player = IconLine(icons[Cork.dbpc["Summon demon-spell"]], Cork.dbpc["Summon demon-spell"]) end
 
 end
 
 ae.RegisterEvent("Cork Summon demon", "UNIT_PET", function(event, unit) if unit == "player" then dataobj:Scan() end end)
-ae.RegisterEvent("Cork mount check", "COMPANION_UPDATE", function(event, type) if type == "MOUNT" then dataobj:Scan() end end)
+if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+	ae.RegisterEvent("Cork mount check", "COMPANION_UPDATE", function(event, type) if type == "MOUNT" then dataobj:Scan() end end)
+end
 function dataobj:CorkIt(frame)
 	if self.player then
 		knowssoulburn = knowssoulburn or GetSpellInfo(soulburn)
@@ -67,6 +74,7 @@ frame:SetScript("OnShow", function()
 	end
 
 	local function OnEnter(self)
+		_G.print("WP OnEnter", self.buff, GetSpellLink(self.buff))
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:SetHyperlink(GetSpellLink(self.buff))
 	end

@@ -76,7 +76,7 @@ frame:SetScript("OnShow", function()
 	end)
 
 
-	local function Update(self) slider:SetValue(Cork.dbpc["Repairs-threshold"]) end
+	local function Update(self) slider:SetValue(Cork.dbpc["Repairs-threshold"] or 0.85) end
 	frame:SetScript("OnShow", Update)
 	Update(frame)
 end)

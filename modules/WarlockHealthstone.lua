@@ -7,8 +7,12 @@ local spellname = GetSpellInfo(6201)
 local IconLine = Cork.IconLine(GetItemIcon(5509), spellname)
 local ldb, ae = LibStub:GetLibrary("LibDataBroker-1.1"), LibStub("AceEvent-3.0")
 
-local ITEMS = {5509, 5510, 5511, 5512, 9421, 19004, 19005, 19006, 19007, 19008, 19009, 19010, 19011, 19012, 19013, 22103, 22104, 22105, 36889, 36890, 36891, 36892, 36893, 36894}
-
+local ITEMS
+if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
+	ITEMS = {5509, 5510, 5511, 5512, 9421, 19004, 19005, 19006, 19007, 19008, 19009, 19010, 19011, 19012, 19013}
+else
+	ITEMS = {5509, 5510, 5511, 5512, 9421, 19004, 19005, 19006, 19007, 19008, 19009, 19010, 19011, 19012, 19013, 22103, 22104, 22105, 36889, 36890, 36891, 36892, 36893, 36894}
+end
 local dataobj = ldb:NewDataObject("Cork Healthstone", {type = "cork", tiptext = "Warn when you do not have a healthstone in your bags."})
 
 function dataobj:Init()

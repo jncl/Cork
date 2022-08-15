@@ -33,7 +33,7 @@ if oldminor < 2 then
 		container:SetHeight(17+12+10)
 		if select(1, ...) then container:SetPoint(...) end
 
-		local slider = CreateFrame("Slider", nil, container)
+		local slider = CreateFrame("Slider", nil, container, "BackdropTemplate")
 		slider:SetPoint("LEFT")
 		slider:SetPoint("RIGHT")
 		slider:SetHeight(17)
@@ -69,7 +69,7 @@ end
 -- Create a slider without labels.
 -- All args optional, parent recommended
 function lib.newbare(parent, ...)
-	local slider = CreateFrame("Slider", nil, parent)
+	local slider = CreateFrame("Slider", nil, parent, "BackdropTemplate")
 	slider:SetHeight(17)
 	slider:SetWidth(144)
 	if select(1, ...) then slider:SetPoint(...) end

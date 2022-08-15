@@ -27,6 +27,7 @@ local ITEMS = {
 	[118565] = 10,
 	[111601] = 5,
 	[118566] = 5,
+	[187728] = 15, -- Ephemera Strands
 }
 
 -- Receipts can combine from the bank

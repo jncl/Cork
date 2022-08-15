@@ -1,3 +1,4 @@
+if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then return end
 
 local myname, ns = ...
 local ae = LibStub("AceEvent-3.0")
@@ -5,7 +6,7 @@ local ae = LibStub("AceEvent-3.0")
 
 local maxlevel = GetMaxPlayerLevel()
 local itemname = "Darkmoon EXP Buff"
-local spellname, _, icon = GetSpellInfo(46668)
+local spellname, _, icon = GetSpellInfo(81055)
 local hatspell = GetSpellInfo(136583)
 local dataobj = ns:GenerateSelfBuffer(itemname, icon, spellname, hatspell)
 ns.defaultspc[itemname.."-enabled"] = true
@@ -23,7 +24,7 @@ end
 
 
 function dataobj:Init()
-	if UnitLevel("player") < maxlevel then OpenCalendar() end
+	if UnitLevel("player") < maxlevel then C_Calendar.OpenCalendar() end
 end
 
 

@@ -24,7 +24,7 @@ ae.RegisterEvent("Cork", "ADDON_LOADED", function(event, addon)
 	CorkDB = setmetatable(CorkDB or {}, {__index = defaults})
 	CorkDBPC = CorkDBPC or {{},{},{},{}}
 	if not CorkDBPC[1] then CorkDBPC = {CorkDBPC, {}, {}, {}} end
-	for _, i in ipairs({2,3,4}) do
+	for _, i in ipairs({2,3,4, 5}) do
 		if not CorkDBPC[i] then CorkDBPC[i] = {} end
 	end
 	Cork.db = CorkDB
@@ -38,24 +38,26 @@ end)
 
 local meta = {__index = Cork.defaultspc}
 ae.RegisterEvent("Cork", "PLAYER_LOGIN", function()
-	local lastspec = GetSpecialization()
-	Cork.dbpc = setmetatable(CorkDBPC[lastspec], meta)
+	if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+		local lastspec = GetSpecialization()
+		Cork.dbpc = setmetatable(CorkDBPC[lastspec], meta)
+		ae.RegisterEvent("Cork", "PLAYER_TALENT_UPDATE", function()
+			if lastspec == GetSpecialization() then return end
+
+			lastspec = GetSpecialization()
+			for i,v in pairs(Cork.defaultspc) do if Cork.dbpc[i] == v then Cork.dbpc[i] = nil end end
+			Cork.dbpc = setmetatable(CorkDBPC[lastspec], meta)
+
+			if Cork.config.Update then Cork.config:Update() end
+			for name,dataobj in pairs(Cork.corks) do if dataobj.Init then dataobj:Init() end end
+			for name,dataobj in pairs(Cork.corks) do dataobj:Scan() end
+		end)
+	end
 
 	for _,dataobj in pairs(Cork.sortedcorks) do if dataobj.Init then dataobj:Init() end end
 	for _,dataobj in pairs(Cork.sortedcorks) do dataobj:Scan() end
 
 	ae.RegisterEvent("Cork", "ZONE_CHANGED_NEW_AREA", Cork.Update)
-	ae.RegisterEvent("Cork", "PLAYER_TALENT_UPDATE", function()
-		if lastspec == GetSpecialization() then return end
-
-		lastspec = GetSpecialization()
-		for i,v in pairs(Cork.defaultspc) do if Cork.dbpc[i] == v then Cork.dbpc[i] = nil end end
-		Cork.dbpc = setmetatable(CorkDBPC[lastspec], meta)
-
-		if Cork.config.Update then Cork.config:Update() end
-		for name,dataobj in pairs(Cork.corks) do if dataobj.Init then dataobj:Init() end end
-		for name,dataobj in pairs(Cork.corks) do dataobj:Scan() end
-	end)
 
 	ae.UnregisterEvent("Cork", "PLAYER_LOGIN")
 end)
@@ -99,7 +101,7 @@ end)
 --      Tooltip anchor      --
 ------------------------------
 
-anchor = CreateFrame("Button", nil, UIParent)
+anchor = CreateFrame("Button", nil, UIParent, "BackdropTemplate")
 anchor:SetHeight(24)
 Cork.anchor = anchor
 
@@ -303,20 +305,31 @@ function Cork.IconLine(icon, text, token)
 	return "|T"..(icon or "")..":24:24:0:0:64:64:4:60:4:60|t ".. (token and ("|cff".. Cork.colors[token]) or "").. text
 end
 
-local last_thresh
-function Cork.RaidThresh()
-	if not last_thresh then
-		local name, type, difficulty, difficultyName, maxPlayers, playerDifficulty, isDynamicInstance = GetInstanceInfo()
-		last_thresh = maxPlayers < 10 and 8 or maxPlayers / 5
+function Cork.UnitAura(unit, aura)
+	for i = 1, BUFF_MAX_DISPLAY do
+		if aura == select('#', UnitAura(unit, i)) then
+			return true
+		end
 	end
-	return last_thresh
+	return false
 end
 
-local function FlushThresh()
-	last_thresh = nil
-	for name,dataobj in pairs(Cork.corks) do dataobj:Scan() end
+if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+	local last_thresh
+	function Cork.RaidThresh()
+		if not last_thresh then
+			local name, type, difficulty, difficultyName, maxPlayers, playerDifficulty, isDynamicInstance = GetInstanceInfo()
+			last_thresh = maxPlayers < 10 and 8 or maxPlayers / 5
+		end
+		return last_thresh
+	end
+
+	local function FlushThresh()
+		last_thresh = nil
+		for name,dataobj in pairs(Cork.corks) do dataobj:Scan() end
+	end
+	ae.RegisterEvent("Cork Core", "PLAYER_DIFFICULTY_CHANGED", FlushThresh)
+	ae.RegisterEvent("Cork Core", "UPDATE_INSTANCE_INFO", FlushThresh)
+	-- ae.RegisterEvent("Cork Core", "GUILD_PARTY_STATE_UPDATED", FlushThresh)
+	-- ae.RegisterEvent("Cork Core", "PLAYER_GUILD_UPDATE", FlushThresh)
 end
-ae.RegisterEvent("Cork Core", "PLAYER_DIFFICULTY_CHANGED", FlushThresh)
-ae.RegisterEvent("Cork Core", "UPDATE_INSTANCE_INFO", FlushThresh)
--- ae.RegisterEvent("Cork Core", "GUILD_PARTY_STATE_UPDATED", FlushThresh)
--- ae.RegisterEvent("Cork Core", "PLAYER_GUILD_UPDATE", FlushThresh)
