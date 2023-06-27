@@ -28,9 +28,13 @@ local function Test(self, ...)
 	return self.oldtest(...)
 end
 
-
+local dataobj
 -- Damage poisons
-local dataobj = Cork:GenerateAdvancedSelfBuffer("Lethal Poison", {2823,8679, 315584--[[,200802]]}) -- Deadly, Wound, Instant
+if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+	dataobj = Cork:GenerateAdvancedSelfBuffer("Lethal Poison", {2823, 8679, 315584}) -- Deadly, Wound, Instant
+else
+	dataobj = Cork:GenerateAdvancedSelfBuffer("Lethal Poison", {2823, 13218, 59242}) -- Deadly, Wound, Instant
+end
 dataobj.oldtest = dataobj.Test
 dataobj.Test = Test
 dataobj.UNIT_INVENTORY_CHANGED = UNIT_INVENTORY_CHANGED
@@ -39,7 +43,11 @@ ae.RegisterEvent(dataobj, "UNIT_INVENTORY_CHANGED")
 
 
 -- Utility poisons
-local dataobj = Cork:GenerateAdvancedSelfBuffer("Non-Lethal Poison", {3408, 5761, 108211}) -- Crippling, Numbing, Leeching
+if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+	dataobj = Cork:GenerateAdvancedSelfBuffer("Non-Lethal Poison", {3408, 5761, 108211}) -- Crippling, Numbing, Leeching
+else
+	dataobj = Cork:GenerateAdvancedSelfBuffer("Non-Lethal Poison", {3409}) -- Crippling
+end
 dataobj.oldtest = dataobj.Test
 dataobj.Test = Test
 dataobj.UNIT_INVENTORY_CHANGED = UNIT_INVENTORY_CHANGED

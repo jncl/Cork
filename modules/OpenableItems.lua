@@ -1,9 +1,10 @@
 
-local myname, ns = ...
-
+local _, ns = ...
 
 local ldb, ae = LibStub:GetLibrary("LibDataBroker-1.1"), LibStub("AceEvent-3.0")
 
+local GetContainerNumSlots = _G.C_Container and _G.C_Container.GetContainerNumSlots or _G.GetContainerNumSlots
+local GetContainerItemID = _G.C_Container and _G.C_Container.GetContainerItemID or _G.GetContainerItemID
 
 local dataobj    = ns:New("Openable items")
 dataobj.tiptext  = "Notify you when there are openable containers in your bags"
@@ -24,12 +25,29 @@ local openable_ids = {
 local function IsOpenable(bag, slot, id)
 	if openable_ids[id] ~= nil then return openable_ids[id] end
 
-	ns.scantip:SetBagItem(bag, slot)
-	for i=1,5 do
-		if ns.scantip.L[i] == RETRIEVING_ITEM_INFO then return false end
-		if ns.scantip.L[i] == ITEM_OPENABLE or ns.scantip.L[i] == OPEN_CLAM then
-			openable_ids[id] = true
-			return true
+	if _G.C_TooltipInfo and _G.C_TooltipInfo.GetBagItem then
+		local tooltipData = _G.C_TooltipInfo.GetBagItem(bag, slot)
+		if tooltipData then
+			_G.TooltipUtil.SurfaceArgs(tooltipData)
+			for i = 1, 5 do
+				if tooltipData.lines[i] == RETRIEVING_ITEM_INFO then return false end
+				if tooltipData.lines[i] == ITEM_OPENABLE
+				or tooltipData.lines[i] == OPEN_CLAM
+				then
+					openable_ids[id] = true
+					return true
+				end
+			end
+			-- info[4] = tooltipData.repairCost and tooltipData.repairCost or 0
+		end
+	else
+		ns.scantip:SetBagItem(bag, slot)
+		for i=1,5 do
+			if ns.scantip.L[i] == RETRIEVING_ITEM_INFO then return false end
+			if ns.scantip.L[i] == ITEM_OPENABLE or ns.scantip.L[i] == OPEN_CLAM then
+				openable_ids[id] = true
+				return true
+			end
 		end
 	end
 	openable_ids[id] = false
@@ -72,7 +90,7 @@ end
 ae.RegisterEvent(dataobj, "BAG_UPDATE_DELAYED", "Scan")
 
 
-function dataobj:CorkIt(frame)
+function dataobj:CorkIt(frame) -- luacheck: ignore self
 	if lastid then
 		return frame:SetManyAttributes("type1", "item", "item1", "item:"..lastid)
 	end

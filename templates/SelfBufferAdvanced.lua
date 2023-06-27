@@ -10,6 +10,7 @@ function Cork:GenerateAdvancedSelfBuffer(modulename, spellidlist, combatonly, us
 	local myname = UnitName("player")
 	local buffnames, icons, known = {}, {}, {}
 	for _,id in pairs(spellidlist) do
+		-- _G.print("Cork", id)
 		local spellname, _, icon = GetSpellInfo(id)
 		buffnames[id], icons[spellname] =  spellname, icon
 	end

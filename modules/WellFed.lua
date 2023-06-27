@@ -3,6 +3,11 @@ local myname, Cork = ...
 local UnitAura = UnitAura
 local ldb, ae = LibStub:GetLibrary("LibDataBroker-1.1"), LibStub("AceEvent-3.0")
 
+local GetContainerNumSlots = _G.C_Container and _G.C_Container.GetContainerNumSlots or _G.GetContainerNumSlots
+local GetContainerItemID = _G.C_Container and _G.C_Container.GetContainerItemID or _G.GetContainerItemID
+local GetItemCount = _G.C_Container and _G.C_Container.GetItemCount or _G.GetItemCount
+local GetItemInfo = _G.C_Container and _G.C_Container.GetItemInfo or _G.GetItemInfo
+local GetAuctionItemSubClasses = C_AuctionHouse and C_AuctionHouse.GetAuctionItemSubClasses or _G.GetAuctionItemSubClasses
 
 local spellname, _, icon = GetSpellInfo(57139) -- RTL
 local spellname2, _, icon2 = GetSpellInfo(44102) -- TBC
@@ -65,7 +70,7 @@ end
 frame:SetScript("OnShow", function()
 	local EDGEGAP, ROWHEIGHT, ROWGAP, GAP = 16, 18, 2, 4
 	local Update
-	local FOOD = C_AuctionHouse and C_AuctionHouse.GetAuctionItemSubClasses(4) or GetAuctionItemSubClasses(4)
+	local FOOD = GetAuctionItemSubClasses(4)
 
 	local function GetFoods()
 		local t = {}

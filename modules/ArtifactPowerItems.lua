@@ -7,6 +7,12 @@ local EMPOWERING = GetSpellInfo(228647)
 
 local ldb, ae = LibStub:GetLibrary("LibDataBroker-1.1"), LibStub("AceEvent-3.0")
 
+local GetContainerNumSlots = _G.C_Container and _G.C_Container.GetContainerNumSlots or _G.GetContainerNumSlots
+local GetContainerItemID = _G.C_Container and _G.C_Container.GetContainerItemID or _G.GetContainerItemID
+local GetItemSpell = _G.C_Container and _G.C_Container.GetItemSpell or _G.GetItemSpell
+local GetItemCount = _G.C_Container and _G.C_Container.GetItemCount or _G.GetItemCount
+local GetItemInfo = _G.C_Container and _G.C_Container.GetItemInfo or _G.GetItemInfo
+
 
 local dataobj    = ns:New("Artifact Power Items")
 dataobj.tiptext  = "Notify you when there are items with artifact power in your bags"

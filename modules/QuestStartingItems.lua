@@ -4,6 +4,9 @@ local myname, Cork = ...
 local IconLine = Cork.IconLine("Interface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon", "Quest starter")
 local ldb, ae = LibStub:GetLibrary("LibDataBroker-1.1"), LibStub("AceEvent-3.0")
 
+local GetContainerNumSlots = _G.C_Container and _G.C_Container.GetContainerNumSlots or _G.GetContainerNumSlots
+local GetContainerItemQuestInfo = _G.C_Container and _G.C_Container.GetContainerItemQuestInfo or _G.GetContainerItemQuestInfo
+
 local bags = {}
 
 Cork.defaultspc["Quest Starting Items-enabled"] = true

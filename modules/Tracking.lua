@@ -7,14 +7,13 @@ local ldb, ae = LibStub:GetLibrary("LibDataBroker-1.1"), LibStub("AceEvent-3.0")
 local NOTRACKING = "Interface\\Minimap\\Tracking\\None"
 local textures, spells = {}, {}
 
-
 local dataobj = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Cork Tracking", {type = "cork", tiptext = "Warn when you are not tracking anything on the minimap."})
 
 local function Test()
 	if not Cork.dbpc["Tracking-enabled"] then return end
 
-	for i=1,GetNumTrackingTypes() do
-		local name, texture, active, category = GetTrackingInfo(i)
+	for i = 1, C_Minimap.GetNumTrackingTypes() do
+		local name, texture, active, category = C_Minimap.GetTrackingInfo(i)
 		if active and category == "spell" then return
 		elseif active then return IconLine(textures[Cork.dbpc["Tracking-spell"]], Cork.dbpc["Tracking-spell"]) end
 	end
@@ -25,15 +24,15 @@ end
 
 local function UpdateSpells()
 	for i in pairs(spells) do spells[i] = nil end
-	for i=1,GetNumTrackingTypes() do
-		local name, texture, active, category = GetTrackingInfo(i)
+	for i= 1, C_Minimap.GetNumTrackingTypes() do
+		local name, texture, active, category = C_Minimap.GetTrackingInfo(i)
 		textures[name] = texture
 		if category == "spell" then table.insert(spells, name) end
 	end
 end
 
 function dataobj:Init()
-	local name, texture, active, category = GetTrackingInfo(1)
+	local name, texture, active, category = C_Minimap.GetTrackingInfo(1)
 	Cork.defaultspc["Tracking-enabled"] = category ~= "other"
 	Cork.defaultspc["Tracking-spell"] = name
 	UpdateSpells()
@@ -45,8 +44,8 @@ ae.RegisterEvent("Cork Tracking", "MINIMAP_UPDATE_TRACKING", dataobj.Scan)
 function dataobj:CorkIt(frame)
 	local spell = Cork.dbpc["Tracking-spell"]
 	local id
-	for i = 1, GetNumTrackingTypes() do
-		if GetTrackingInfo(i) == spell then
+	for i = 1, C_Minimap.GetNumTrackingTypes() do
+		if C_Minimap.GetTrackingInfo(i) == spell then
 			id = i
 			break
 		end

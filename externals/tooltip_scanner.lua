@@ -55,8 +55,6 @@ tip.Erase = function(self)
 	end
 end
 
-
--- Hooks the Set* methods to force a full erase beforehand
 local methods = {"SetMerchantCostItem", "SetBagItem", "SetAction",
   "SetAuctionItem", "SetAuctionSellItem", "SetBuybackItem", "SetCraftItem",
   "SetCraftSpell", "SetHyperlink", "SetInboxItem", "SetInventoryItem",
@@ -66,11 +64,13 @@ local methods = {"SetMerchantCostItem", "SetBagItem", "SetAction",
   "SetTrackingSpell", "SetTradePlayerItem", "SetTradeSkillItem",
   "SetTradeTargetItem", "SetTrainerService", "SetUnit", "SetUnitBuff",
   "SetUnitDebuff"}
-for _,m in pairs(methods) do
-	local orig = tip[m]
-	tip[m] = function(self, ...)
-		self:Erase()
-		return orig(self, ...)
+if _G.WOW_PROJECT_ID ~= _G.WOW_PROJECT_MAINLINE then
+	-- Hooks the Set* methods to force a full erase beforehand
+	for _,m in pairs(methods) do
+		local orig = tip[m]
+		tip[m] = function(self, ...)
+			self:Erase()
+			return orig(self, ...)
+		end
 	end
 end
-

@@ -4,6 +4,8 @@ local myname, ns = ...
 
 local ldb, ae = LibStub:GetLibrary("LibDataBroker-1.1"), LibStub("AceEvent-3.0")
 
+local GetContainerNumSlots = _G.C_Container and _G.C_Container.GetContainerNumSlots or _G.GetContainerNumSlots
+local GetContainerItemID = _G.C_Container and _G.C_Container.GetContainerItemID or _G.GetContainerItemID
 
 local dataobj    = ns:New("Capsules")
 dataobj.tiptext  = "Notify you when you have items that grant a boon when used"
