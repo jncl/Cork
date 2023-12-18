@@ -1,9 +1,20 @@
+local _, Cork = ...
+local _G = _G
+-- luacheck: ignore 631 (line is too long)
+-- luacheck: ignore 111 112 113 (setting non-standard global variable, mutating non-standard global variable, accessing undefined variable)
 
-local myname, Cork = ...
-local ldb, ae = LibStub:GetLibrary("LibDataBroker-1.1"), LibStub("AceEvent-3.0")
+if _G.WOW_PROJECT_ID == _G.WOW_PROJECT_MAINLINE then
+	Cork.isRtl = true
+elseif _G.WOW_PROJECT_ID == _G.WOW_PROJECT_CLASSIC then
+	Cork.isClscERA = true
+elseif _G.WOW_PROJECT_ID == _G.WOW_PROJECT_WRATH_CLASSIC then
+	Cork.isClsc = true
+end
+
+local ldb, ae = _G.LibStub:GetLibrary("LibDataBroker-1.1"), _G.LibStub("AceEvent-3.0")
 local _
 
-_, Cork.MYCLASS = UnitClass("player")
+_, Cork.MYCLASS = _G.UnitClass("player")
 
 Cork.corks, Cork.db, Cork.dbpc, Cork.defaultspc = {}, {}, {}, {}
 Cork.sortedcorks = {}
@@ -11,20 +22,19 @@ Cork.sortedcorks = {}
 local defaults = {point = "TOP", x = 0, y = -100, showanchor = true, debug = false, bindwheel = false}
 local tooltip, anchor
 
-for i=1,MAX_BOSS_FRAMES do Cork.keyblist["boss"..i] = true end
-
+for i = 1, _G.MAX_BOSS_FRAMES do Cork.keyblist["boss"..i] = true end
 
 ------------------------------
 --      Initialization      --
 ------------------------------
 
-ae.RegisterEvent("Cork", "ADDON_LOADED", function(event, addon)
+ae.RegisterEvent("Cork", "ADDON_LOADED", function(_, addon)
 	if addon:lower() ~= "cork" then return end
 
-	CorkDB = setmetatable(CorkDB or {}, {__index = defaults})
+	CorkDB = _G.setmetatable(CorkDB or {}, {__index = defaults})
 	CorkDBPC = CorkDBPC or {{},{},{},{}}
 	if not CorkDBPC[1] then CorkDBPC = {CorkDBPC, {}, {}, {}} end
-	for _, i in ipairs({2,3,4, 5}) do
+	for _, i in _G.ipairs({2,3,4, 5}) do
 		if not CorkDBPC[i] then CorkDBPC[i] = {} end
 	end
 	Cork.db = CorkDB
@@ -35,27 +45,26 @@ ae.RegisterEvent("Cork", "ADDON_LOADED", function(event, addon)
 	ae.UnregisterEvent("Cork", "ADDON_LOADED")
 end)
 
-
 local meta = {__index = Cork.defaultspc}
 ae.RegisterEvent("Cork", "PLAYER_LOGIN", function()
-	if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
-		local lastspec = GetSpecialization()
-		Cork.dbpc = setmetatable(CorkDBPC[lastspec], meta)
+	if _G.WOW_PROJECT_ID == _G.WOW_PROJECT_MAINLINE then
+		local lastspec = _G.GetSpecialization()
+		Cork.dbpc = _G.setmetatable(CorkDBPC[lastspec], meta)
 		ae.RegisterEvent("Cork", "PLAYER_TALENT_UPDATE", function()
-			if lastspec == GetSpecialization() then return end
+			if lastspec == _G.GetSpecialization() then return end
 
-			lastspec = GetSpecialization()
-			for i,v in pairs(Cork.defaultspc) do if Cork.dbpc[i] == v then Cork.dbpc[i] = nil end end
-			Cork.dbpc = setmetatable(CorkDBPC[lastspec], meta)
+			lastspec = _G.GetSpecialization()
+			for i, v in _G.pairs(Cork.defaultspc) do if Cork.dbpc[i] == v then Cork.dbpc[i] = nil end end
+			Cork.dbpc = _G.setmetatable(CorkDBPC[lastspec], meta)
 
 			if Cork.config.Update then Cork.config:Update() end
-			for name,dataobj in pairs(Cork.corks) do if dataobj.Init then dataobj:Init() end end
-			for name,dataobj in pairs(Cork.corks) do dataobj:Scan() end
+			for _, dataobj in _G.pairs(Cork.corks) do if dataobj.Init then dataobj:Init() end end
+			for _, dataobj in _G.pairs(Cork.corks) do dataobj:Scan() end
 		end)
 	end
 
-	for _,dataobj in pairs(Cork.sortedcorks) do if dataobj.Init then dataobj:Init() end end
-	for _,dataobj in pairs(Cork.sortedcorks) do dataobj:Scan() end
+	for _,dataobj in _G.pairs(Cork.sortedcorks) do if dataobj.Init then dataobj:Init() end end
+	for _,dataobj in _G.pairs(Cork.sortedcorks) do dataobj:Scan() end
 
 	ae.RegisterEvent("Cork", "ZONE_CHANGED_NEW_AREA", Cork.Update)
 
@@ -64,8 +73,8 @@ end)
 
 
 ae.RegisterEvent("Cork", "PLAYER_LOGOUT", function()
-	for i,v in pairs(defaults) do if Cork.db[i] == v then Cork.db[i] = nil end end
-	for i,v in pairs(Cork.defaultspc) do if Cork.dbpc[i] == v then Cork.dbpc[i] = nil end end
+	for i,v in _G.pairs(defaults) do if Cork.db[i] == v then Cork.db[i] = nil end end
+	for i,v in _G.pairs(Cork.defaultspc) do if Cork.dbpc[i] == v then Cork.dbpc[i] = nil end end
 end)
 
 local onTaxi, petBattle
@@ -80,7 +89,7 @@ ae.RegisterEvent("Cork Core", "PLAYER_CONTROL_GAINED", function()
 end)
 
 ae.RegisterEvent("Cork Core", "UNIT_ENTERED_VEHICLE", function()
-	onTaxi = UnitHasVehicleUI('player')
+	onTaxi = _G.UnitHasVehicleUI('player')
 	Cork.Update()
 end)
 ae.RegisterEvent("Cork Core", "UNIT_EXITED_VEHICLE", function()
@@ -101,7 +110,7 @@ end)
 --      Tooltip anchor      --
 ------------------------------
 
-anchor = CreateFrame("Button", nil, UIParent, "BackdropTemplate")
+anchor = _G.CreateFrame("Button", nil, _G.UIParent, "BackdropTemplate")
 anchor:SetHeight(24)
 Cork.anchor = anchor
 
@@ -114,18 +123,15 @@ text:SetPoint("CENTER")
 text:SetText("Cork")
 anchor:SetWidth(text:GetStringWidth() + 8)
 
-
 anchor:SetMovable(true)
 anchor:RegisterForDrag("LeftButton")
 
-anchor:SetScript("OnClick", function(self) InterfaceOptionsFrame_OpenToCategory(Cork.config) end)
-
+anchor:SetScript("OnClick", function(self) _G.InterfaceOptionsFrame_OpenToCategory(Cork.config) end) -- luacheck: ignore 212 (unused argument)
 
 anchor:SetScript("OnDragStart", function(self)
 	tooltip:Hide()
 	self:StartMoving()
 end)
-
 
 anchor:SetScript("OnDragStop", function(self)
 	self:StopMovingOrSizing()
@@ -133,78 +139,77 @@ anchor:SetScript("OnDragStop", function(self)
 	Cork.Update()
 end)
 
-
 -----------------------
 --      Tooltip      --
 -----------------------
 
-tooltip = CreateFrame("GameTooltip", "Corkboard", UIParent, "GameTooltipTemplate")
+tooltip = _G.CreateFrame("GameTooltip", "Corkboard", _G.UIParent, "GameTooltipTemplate")
 tooltip:SetFrameStrata("MEDIUM")
-CorkboardTextLeft1:SetFontObject(GameTooltipText)
-CorkboardTextRight1:SetFontObject(GameTooltipText)
-
+if Cork.isRtl then
+	tooltip.TextLeft1:SetFontObject(_G.GameTooltipText)
+	tooltip.TextRight1:SetFontObject(_G.GameTooltipText)
+else
+	_G.CorkboardTextLeft1:SetFontObject(_G.GameTooltipText)
+	_G.CorkboardTextRight1:SetFontObject(_G.GameTooltipText)
+end
 
 local function GetTipAnchor(frame)
 	local x,y = frame:GetCenter()
 	if not x or not y then return "TOPLEFT", frame, "BOTTOMLEFT" end
-	local hhalf = (x > UIParent:GetWidth()*2/3) and "RIGHT" or (x < UIParent:GetWidth()/3) and "LEFT" or ""
-	local vhalf = (y > UIParent:GetHeight()/2) and "TOP" or "BOTTOM"
+	local hhalf = (x > _G.UIParent:GetWidth()*2/3) and "RIGHT" or (x < _G.UIParent:GetWidth()/3) and "LEFT" or ""
+	local vhalf = (y > _G.UIParent:GetHeight()/2) and "TOP" or "BOTTOM"
 	return vhalf..hhalf, frame, (vhalf == "TOP" and "BOTTOM" or "TOP")..hhalf
 end
-
 
 local function CorkSorter(a, b)
 	return a and b and a.sortname < b.sortname
 end
-
 
 local function SetSort(dataobj)
 	local downcase = dataobj.name:lower()
 	dataobj.sortname = string.format("%02d %s", (dataobj.priority or 5), downcase)
 end
 
-
 local activecorks, usedcorks = {}, {}
 local raidunits = {player = true}
-for i=1,4 do raidunits["party"..i] = true end
-for i=1,40 do raidunits["raid"..i] = true end
-function Cork.Update(event, name, attr, value, dataobj)
+for i = 1, 4 do raidunits["party"..i] = true end
+for i = 1, 40 do raidunits["raid"..i] = true end
+function Cork.Update(_, _, attr, value, dataobj)
 	if attr == "name" then
 		Cork.corks[value] = dataobj
 	end
 
 	if attr == "priority" or attr == "name" then
 		SetSort(dataobj)
-		table.sort(Cork.sortedcorks, CorkSorter)
+		_G.table.sort(Cork.sortedcorks, CorkSorter)
 	end
 
 	if Cork.keyblist[attr] then return end
 
 	tooltip:Hide()
 
-	table.wipe(activecorks)
-	table.wipe(usedcorks)
+	_G.table.wipe(activecorks)
+	_G.table.wipe(usedcorks)
 
-	local inbg = GetZonePVPInfo() == "combat" or select(2, IsInInstance()) == "pvp"
+	local inbg = _G.GetZonePVPInfo() == "combat" or _G.select(2, _G.IsInInstance()) == "pvp"
 
-	for i,dataobj in ipairs(Cork.sortedcorks) do
-		if dataobj.nobg and inbg then usedcorks[dataobj] = true end
+	for _, dObj in _G.ipairs(Cork.sortedcorks) do
+		if dObj.nobg and inbg then usedcorks[dObj] = true end
 	end
 
-	for i,dataobj in ipairs(Cork.sortedcorks) do
-		if not usedcorks[dataobj] and dataobj.player then
-			table.insert(activecorks, dataobj)
-			usedcorks[dataobj] = true
+	for _, dObj in _G.ipairs(Cork.sortedcorks) do
+		if not usedcorks[dObj] and dObj.player then
+			_G.table.insert(activecorks, dObj)
+			usedcorks[dObj] = true
 		end
 	end
 
-	for i,dataobj in ipairs(Cork.sortedcorks) do
-		if not usedcorks[dataobj] then
-			table.insert(activecorks, dataobj)
-			usedcorks[dataobj] = true
+	for _, dObj in _G.ipairs(Cork.sortedcorks) do
+		if not usedcorks[dObj] then
+			_G.table.insert(activecorks, dObj)
+			usedcorks[dObj] = true
 	  end
 	end
-
 
 	tooltip:ClearLines()
 	tooltip:SetOwner(anchor, "ANCHOR_NONE")
@@ -212,16 +217,16 @@ function Cork.Update(event, name, attr, value, dataobj)
 
 	if Cork.db.showbg or not inbg then
 		local count = 0
-		for i,dataobj in ipairs(activecorks) do
-			if not (dataobj.nobg and inbg) then
-				local inneed, numr, prefix = 0, GetNumGroupMembers(), IsInRaid() and "raid" or "party"
-				for i=1,numr do if dataobj.RaidLine and dataobj[prefix..i] then inneed = inneed + 1 end end
-				if dataobj.RaidLine and numr > 0 and dataobj["player"] then inneed = inneed + 1 end
+		for _, dObj in _G.ipairs(activecorks) do
+			if not (dObj.nobg and inbg) then
+				local inneed, numr, prefix = 0, _G.GetNumGroupMembers(), _G.IsInRaid() and "raid" or "party"
+				for i = 1, numr do if dObj.RaidLine and dObj[prefix..i] then inneed = inneed + 1 end end
+				if dObj.RaidLine and numr > 0 and dObj["player"] then inneed = inneed + 1 end
 				if inneed > 1 and count < 10 then -- Hard limit, show 10 lines at most
-					if Cork.db.debug then tooltip:AddDoubleLine(string.format(dataobj.RaidLine, inneed), "raid") else tooltip:AddLine(string.format(dataobj.RaidLine, inneed)) end
+					if Cork.db.debug then tooltip:AddDoubleLine(string.format(dObj.RaidLine, inneed), "raid") else tooltip:AddLine(string.format(dObj.RaidLine, inneed)) end
 					count = count + 1
 				end
-				for i,v in ldb:pairs(dataobj) do
+				for i, v in ldb:pairs(dObj) do
 					if v ~= false and not Cork.keyblist[i] and (inneed <= 1 or not raidunits[i]) and count < 10 then
 						if Cork.db.debug then tooltip:AddDoubleLine(v, i) else tooltip:AddLine(v) end
 						count = count + 1
@@ -236,12 +241,11 @@ function Cork.Update(event, name, attr, value, dataobj)
 	end
 end
 
-
 -------------------------
 --      LDB stuff      --
 -------------------------
 
-local function NewDataobject(event, name, dataobj)
+local function NewDataobject(_s, name, dataobj)
 	if dataobj.type ~= "cork" then return end
 	if not dataobj.name then dataobj.name = name:gsub("Cork ", "") end
 	SetSort(dataobj)
@@ -253,72 +257,68 @@ end
 
 ldb.RegisterCallback("Corker", "LibDataBroker_DataObjectCreated", NewDataobject)
 
-
-function Cork:New(name)
-	return ldb:NewDataObject("Cork "..name, {type = "cork", name = name})
+function Cork:New(name) -- luacheck: ignore 212 (unused argument)
+	return ldb:NewDataObject("Cork " .. name, {type = "cork", name = name})
 end
-
 
 ----------------------------
 --      Secure frame      --
 ----------------------------
 
-local secureframe = CreateFrame("Button", "CorkFrame", UIParent, "SecureActionButtonTemplate")
+local secureframe = _G.CreateFrame("Button", "CorkFrame", _G.UIParent, "SecureActionButtonTemplate")
 
 secureframe.SetManyAttributes = function(self, ...)
-	for i=1,select("#", ...),2 do
-		local att,val = select(i, ...)
+	for i = 1, select("#", ...), 2 do
+		local att, val = select(i, ...)
 		if not att then return end
-		self:SetAttribute(att,val)
+		self:SetAttribute(att, val)
+		-- _G.print("SetManyAttributes", att, val)
 	end
 	return true
 end
 
-
 secureframe:SetScript("PreClick", function(self)
-	if onTaxi or InCombatLockdown() then return end
-	for i,dataobj in ipairs(activecorks) do
-		if dataobj.CorkIt and (not IsStealthed() or dataobj.CanCorkStealthed) and dataobj:CorkIt(self) then return end
+	if onTaxi or _G.InCombatLockdown() then return end
+	for _, dataobj in _G.ipairs(activecorks) do
+		if dataobj.CorkIt and (not _G.IsStealthed() or dataobj.CanCorkStealthed) and dataobj:CorkIt(self) then return end
 	end
 end)
 
-
 secureframe:SetScript("PostClick", function()
-	if InCombatLockdown() then return end
-	secureframe:SetManyAttributes("type1", ATTRIBUTE_NOOP, "bag1", nil, "slot1", nil, "item1", nil, "spell", nil, "unit", nil, "macrotext1", nil)
+	if _G.InCombatLockdown() then return end
+	secureframe:SetManyAttributes("type1", _G.ATTRIBUTE_NOOP, "bag1", nil, "slot1", nil, "item1", nil, "spell", nil, "unit", nil, "macrotext1", nil)
 end)
-
 
 --------------------------------
 --      Shared functions      --
 --------------------------------
 
 function Cork.IsSpellInRange(spell, unit)
-	return IsSpellInRange(spell, unit) == 1
+	return _G.IsSpellInRange(spell, unit) == 1
 end
 
 function Cork.SpellCastableOnUnit(spell, unit)
-	return UnitExists(unit) and UnitCanAssist("player", unit) and UnitIsVisible(unit) and UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and Cork.IsSpellInRange(spell, unit)
+	return _G.UnitExists(unit) and _G.UnitCanAssist("player", unit) and _G.UnitIsVisible(unit) and _G.UnitIsConnected(unit) and not _G.UnitIsDeadOrGhost(unit) and Cork.IsSpellInRange(spell, unit)
 end
 
-function Cork.IconLine(icon, text, token)
-	return "|T"..(icon or "")..":24:24:0:0:64:64:4:60:4:60|t ".. (token and ("|cff".. Cork.colors[token]) or "").. text
+function Cork.IconLine(icon, linetext, token)
+	return "|T" .. (icon or "") .. ":24:24:0:0:64:64:4:60:4:60|t " .. (token and ("|cff" .. Cork.colors[token]) or "") .. linetext
 end
 
 function Cork.UnitAura(unit, aura)
-	for i = 1, BUFF_MAX_DISPLAY do
-		if aura == select('#', UnitAura(unit, i)) then
+	for i = 1, _G.BUFF_MAX_DISPLAY do
+		if aura == select('#', _G.UnitAura(unit, i)) then
 			return true
 		end
 	end
 	return false
 end
 
-if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+if _G.WOW_PROJECT_ID == _G.WOW_PROJECT_MAINLINE then
 	local last_thresh
 	function Cork.RaidThresh()
 		if not last_thresh then
-			local name, type, difficulty, difficultyName, maxPlayers, playerDifficulty, isDynamicInstance = GetInstanceInfo()
+			local _, _, _, _, maxPlayers, _, _ = _G.GetInstanceInfo()
 			last_thresh = maxPlayers < 10 and 8 or maxPlayers / 5
 		end
 		return last_thresh
@@ -326,7 +326,7 @@ if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
 
 	local function FlushThresh()
 		last_thresh = nil
-		for name,dataobj in pairs(Cork.corks) do dataobj:Scan() end
+		for _, dataobj in _G.pairs(Cork.corks) do dataobj:Scan() end
 	end
 	ae.RegisterEvent("Cork Core", "PLAYER_DIFFICULTY_CHANGED", FlushThresh)
 	ae.RegisterEvent("Cork Core", "UPDATE_INSTANCE_INFO", FlushThresh)

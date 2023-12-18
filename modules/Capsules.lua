@@ -1,8 +1,8 @@
 
-local myname, ns = ...
+local _, ns = ...
+local _G = _G
 
-
-local ldb, ae = LibStub:GetLibrary("LibDataBroker-1.1"), LibStub("AceEvent-3.0")
+local _, ae = _G.LibStub:GetLibrary("LibDataBroker-1.1"), _G.LibStub("AceEvent-3.0")
 
 local GetContainerNumSlots = _G.C_Container and _G.C_Container.GetContainerNumSlots or _G.GetContainerNumSlots
 local GetContainerItemID = _G.C_Container and _G.C_Container.GetContainerItemID or _G.GetContainerItemID
@@ -14,7 +14,7 @@ dataobj.priority = 9
 
 
 function dataobj:Init()
-	ns.defaultspc[self.name.."-enabled"] = true
+	ns.defaultspc[self.name .. "-enabled"] = true
 end
 
 
@@ -38,8 +38,8 @@ local OPENABLE_IDS = {
 
 
 local function Test()
-	for bag=0,4 do
-		for slot=1,GetContainerNumSlots(bag) do
+	for bag = 0, 4 do
+		for slot = 1, GetContainerNumSlots(bag) do
 			local itemid = GetContainerItemID(bag, slot)
 			if itemid and OPENABLE_IDS[itemid] then return itemid end
 		end
@@ -56,8 +56,8 @@ function dataobj:Scan()
 
 	lastid = Test()
 	if lastid then
-		local num = GetItemCount(lastid)
-		local itemname, _, _, _, _, _, _, _, _, texture = GetItemInfo(lastid)
+		local num = _G.GetItemCount(lastid)
+		local itemname, _, _, _, _, _, _, _, _, texture = _G.GetItemInfo(lastid)
 		if itemname ~= nil then
 			self.player = ns.IconLine(texture, itemname.. " (".. num.. ")")
 		else
@@ -72,8 +72,8 @@ end
 ae.RegisterEvent(dataobj, "BAG_UPDATE_DELAYED", "Scan")
 
 
-function dataobj:CorkIt(frame)
+function dataobj:CorkIt(frame) -- luacheck: ignore 212 (unused argument)
 	if lastid then
-		return frame:SetManyAttributes("type1", "item", "item1", "item:"..lastid)
+		return frame:SetManyAttributes("type1", "item", "item1", "item:" .. lastid)
 	end
 end
