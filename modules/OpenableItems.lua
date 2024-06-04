@@ -1,3 +1,4 @@
+-- luacheck: ignore 212 (unused argument)
 local _, ns = ...
 local _G = _G
 
@@ -10,7 +11,6 @@ local dataobj    = ns:New("Openable items")
 dataobj.tiptext  = "Notify you when there are openable containers in your bags"
 dataobj.corktype = "item"
 dataobj.priority = 8
-
 
 function dataobj:Init()
 	ns.defaultspc[self.name .. "-enabled"] = true
@@ -59,24 +59,25 @@ local function IsOpenable(bag, slot, id)
 	return false
 end
 
+local itemid
 local function Test()
 	for bag = 0, 4 do
 		for slot = 1, GetContainerNumSlots(bag) do
-			local itemid = GetContainerItemID(bag, slot)
-			if itemid and IsOpenable(bag, slot, itemid) then return itemid end
+			itemid = GetContainerItemID(bag, slot)
+			if itemid and IsOpenable(bag, slot, itemid) then return itemid, bag, slot end
 			-- if itemid and IsOpenable(bag, slot, itemid) then return itemid end
 		end
 	end
 end
 
-local lastid, num, itemname, texture
+local lastid, bag, slot, num, itemname, texture
 function dataobj:Scan()
 	if not ns.dbpc[self.name .. "-enabled"] then
 		self.player = nil
 		return
 	end
 
-	lastid = Test()
+	lastid, bag, slot = Test()
 	if lastid then
 		num = _G.GetItemCount(lastid)
 		itemname, _, _, _, _, _, _, _, _, texture = _G.GetItemInfo(lastid)
@@ -93,8 +94,10 @@ end
 
 ae.RegisterEvent(dataobj, "BAG_UPDATE_DELAYED", "Scan")
 
-function dataobj:CorkIt(frame) -- luacheck: ignore 212 (unused argument)
+function dataobj:CorkIt(frame)
 	if lastid then
-		return frame:SetManyAttributes("type1", "item", "item1", "item:" .. lastid)
+		return frame:SetManyAttributes("type1", "item", "item1", itemname)
+		-- return frame:SetManyAttributes("type1", "item", "item1", bag .. " " .. slot)
+		-- return frame:SetManyAttributes("type1", "item", "item1", "item:" .. lastid)
 	end
 end

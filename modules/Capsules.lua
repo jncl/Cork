@@ -1,4 +1,4 @@
-
+-- luacheck: ignore 212 (unused argument)
 local _, ns = ...
 local _G = _G
 
@@ -12,11 +12,9 @@ dataobj.tiptext  = "Notify you when you have items that grant a boon when used"
 dataobj.corktype = "item"
 dataobj.priority = 9
 
-
 function dataobj:Init()
 	ns.defaultspc[self.name .. "-enabled"] = true
 end
-
 
 local OPENABLE_IDS = {
 	[139020] = true, -- Valarjar Insignia
@@ -36,18 +34,18 @@ local OPENABLE_IDS = {
 	[141992] = true, -- Greater Nightfallen Insignia
 }
 
-
+local itemid
 local function Test()
 	for bag = 0, 4 do
 		for slot = 1, GetContainerNumSlots(bag) do
-			local itemid = GetContainerItemID(bag, slot)
-			if itemid and OPENABLE_IDS[itemid] then return itemid end
+			itemid = GetContainerItemID(bag, slot)
+			if itemid and OPENABLE_IDS[itemid] then return itemid, bag, slot end
+			-- if itemid and OPENABLE_IDS[itemid] then return itemid end
 		end
 	end
 end
 
-
-local lastid
+local lastid, num, itemname, texture
 function dataobj:Scan()
 	if not ns.dbpc[self.name.."-enabled"] then
 		self.player = nil
@@ -56,8 +54,8 @@ function dataobj:Scan()
 
 	lastid = Test()
 	if lastid then
-		local num = _G.GetItemCount(lastid)
-		local itemname, _, _, _, _, _, _, _, _, texture = _G.GetItemInfo(lastid)
+		num = _G.GetItemCount(lastid)
+		itemname, _, _, _, _, _, _, _, _, texture = _G.GetItemInfo(lastid)
 		if itemname ~= nil then
 			self.player = ns.IconLine(texture, itemname.. " (".. num.. ")")
 		else
@@ -71,9 +69,10 @@ end
 
 ae.RegisterEvent(dataobj, "BAG_UPDATE_DELAYED", "Scan")
 
-
-function dataobj:CorkIt(frame) -- luacheck: ignore 212 (unused argument)
+function dataobj:CorkIt(frame)
 	if lastid then
-		return frame:SetManyAttributes("type1", "item", "item1", "item:" .. lastid)
+		return frame:SetManyAttributes("type1", "item", "item1", itemname)
+		-- return frame:SetManyAttributes("type1", "item", "item1", bag .. " " .. slot)
+		-- return frame:SetManyAttributes("type1", "item", "item1", "item:" .. lastid)
 	end
 end
