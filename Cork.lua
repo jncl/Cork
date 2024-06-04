@@ -1,13 +1,12 @@
+-- luacheck: ignore 111 112 113 631 (setting non-standard global variable|mutating non-standard global variable|accessing undefined variable|line is too long)
 local _, Cork = ...
 local _G = _G
--- luacheck: ignore 631 (line is too long)
--- luacheck: ignore 111 112 113 (setting non-standard global variable, mutating non-standard global variable, accessing undefined variable)
 
 if _G.WOW_PROJECT_ID == _G.WOW_PROJECT_MAINLINE then
 	Cork.isRtl = true
 elseif _G.WOW_PROJECT_ID == _G.WOW_PROJECT_CLASSIC then
 	Cork.isClscERA = true
-elseif _G.WOW_PROJECT_ID == _G.WOW_PROJECT_WRATH_CLASSIC then
+else
 	Cork.isClsc = true
 end
 
